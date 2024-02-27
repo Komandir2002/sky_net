@@ -1,0 +1,15 @@
+/* Дополнительные стили по вашему усмотрению */
+.status-checklist {
+    display: flex;
+
+}
+
+.status-item {
+    margin-right: 20px;
+    list-style-type: none;
+    border-bottom: 2px solid green; /* Линия между статусами */
+    padding-bottom: 5px; /* Расстояние между линией и текстом статуса */
+}
+.p {
+    background: #0b2e13;
+}

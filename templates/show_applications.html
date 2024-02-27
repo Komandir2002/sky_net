@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Applications</title>
+</head>
+<body>
+    <h1>Список Заявок</h1>
+
+    <ul>
+        {% for application in applications %}
+            <li>
+                <strong>Заявка #{{ application.id }}</strong>
+                <br>
+                Статус: {{ application.status_id.status }}
+                <br>
+                bx_id: {{ application.bx_id }}
+                <br>
+                planup_id: {{ application.planup_id }}
+                <br>
+                user_id: {{ application.user_id }}
+            </li>
+            <hr>
+        {% endfor %}
+    </ul>
+</body>
+</html>

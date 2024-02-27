@@ -1,0 +1,277 @@
+{#{% load static %}#}
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
+{#    <title>Star Rating</title>#}
+{#</head>#}
+{#<style>#}
+{#    body {#}
+{#        font-family: Arial, sans-serif;#}
+{#        display: flex;#}
+{#        justify-content: center;#}
+{#        align-items: center;#}
+{#        height: 100vh;#}
+{#        flex-direction: column;#}
+{#    }#}
+{##}
+{#    .text p {#}
+{#        font-size: 28px; /* Увеличиваем размер текста */#}
+{#    }#}
+{##}
+{#    .star-rating {#}
+{#        display: flex;#}
+{#        font-size: 4rem; /* Увеличиваем размер звездочек */#}
+{#        color: #ddd; /* Default color of stars */#}
+{#        cursor: pointer; /* Меняем курсор на pointer для всего блока рейтинга */#}
+{#    }#}
+{##}
+{#    .star-selected {#}
+{#        color: #ffd700; /* Color of unselected stars when hovering */#}
+{#    }#}
+{##}
+{#    .star-rating .star.selected {#}
+{#        color: #ddd; /* Color of selected stars */#}
+{#    }#}
+{##}
+{#</style>#}
+{#<body>#}
+{##}
+{#<div class="text">#}
+{#    <p>Оцените качество работы👍</p>#}
+{#</div>#}
+{##}
+{#<div class="star-rating" data-application-id="{{ application.slug }}">#}
+{#    <span class="star" data-value="1">&#9733;</span>#}
+{#    <span class="star" data-value="2">&#9733;</span>#}
+{#    <span class="star" data-value="3">&#9733;</span>#}
+{#    <span class="star" data-value="4">&#9733;</span>#}
+{#    <span class="star" data-value="5">&#9733;</span>#}
+{#</div>#}
+{##}
+{##}
+{#<script>#}
+{#    let rating = 0;#}
+{#    const textElement = document.querySelector('.text');#}
+{#    const stars = document.querySelectorAll('.star');#}
+{##}
+{#    function getCookie(name) {#}
+{#        let cookies = document.cookie.split(';');#}
+{#        for (let i = 0; i < cookies.length; i++) {#}
+{#            let cookie = cookies[i].trim();#}
+{#            if (cookie.startsWith(name + '=')) {#}
+{#                if (name === 'rating') {#}
+{#                    rating = cookie.substring(name.length + 1);#}
+{#                    if (textElement) {#}
+{#                        textElement.innerHTML = `<p>Спасибо за оценку мы это ценим, ваша оценка ${rating}/5👍</p>`;#}
+{#                        for (let i = 0; i < rating; i++) {#}
+{#                            stars[i].className = 'star-selected';#}
+{#                        }#}
+{#                    }#}
+{#                }#}
+{#                return cookie.substring(name.length + 1);#}
+{#            }#}
+{#        }#}
+{#        return 0;#}
+{#    }#}
+{##}
+{#    getCookie('rating');#}
+{##}
+{#    if (rating === 0) {#}
+{#        stars.forEach(item => {#}
+{#            item.addEventListener('click', function () {#}
+{#                const score = item.getAttribute('data-value');#}
+{#                const applicationId = this.parentNode.getAttribute('data-application-id');#}
+{#                fetch(`/rate-application/${applicationId}/`, {#}
+{#                    method: 'POST',#}
+{#                    body: JSON.stringify({'score': score}),#}
+{#                    headers: {#}
+{#                        'Content-Type': 'application/json',#}
+{#                        'X-CSRFToken': getCookie('csrftoken'),#}
+{#                    }#}
+{#                })#}
+{#                    .then(response => {#}
+{#                        response.json();#}
+{#                        document.cookie = `rating=${score};`;#}
+{#                    })#}
+{#                    .then(() => {#}
+{#                        getCookie('rating');#}
+{#                    })#}
+{#                    .catch(error => console.error('Error:', error));#}
+{#            }, {once: true});#}
+{#        });#}
+{#    } else if (rating > 0) {#}
+{#        for (let i = 0; i < 5; i++) {#}
+{#            stars[i].className = 'star';#}
+{#        }#}
+{#        if (textElement) {#}
+{#            textElement.innerHTML = `<p>Ваша оценка ${rating}/5👍</p>`;#}
+{#            for (let i = 0; i < rating; i++) {#}
+{#                stars[i].className = 'star-selected';#}
+{#            }#}
+{#        }#}
+{#    }#}
+{#</script>#}
+{#</body>#}
+{#</html>#}
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Rating</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .text p {
+            font-size: 24px; /* Adjusted text size */
+            text-align: center;
+        }
+
+.container {
+    display: flex;
+    align-items: center; /* Выравнивание элементов по вертикали */
+    justify-content: space-around; /* Равномерное распределение пространства между элементами */
+    width: 100%;
+    max-width: 800px; /* Максимальная ширина контейнера */
+    margin: auto; /* Центрирование контейнера */
+}
+    .star-rating {
+    display: flex;
+    {#justify-content: flex-end; /* Начало отсчёта звёзд с правой стороны */#}
+    {#flex-direction: row-reverse; /* Разворот направления звёзд */#}
+    font-size: 3rem;
+    color: #ddd;
+    cursor: pointer;
+}
+
+        .star-rating .star {
+            color: #ddd; /* Default color of stars */
+            transition: color 0.2s; /* Smooth transition for color change */
+        }
+
+        {#.star-rating .star:hover,#}
+        {#.star-rating .star:hover ~ .star { /* Changes color when hovered */#}
+        {#    color: #ffd700; /* Gold color for hovered stars */#}
+        {#}#}
+
+       textarea {
+    width: 100%; /* Увеличение ширины поля отзыва */
+    height: 100px;
+    margin-right: 20px; /* Отступ справа */
+}
+    </style>
+</head>
+<body>
+
+<div class="text">
+    <p>Оцените качество работы👍</p>
+</div>
+
+<!-- Textarea for comments -->
+<div>
+    <textarea id="ratingMessage" placeholder="Оставьте ваш комментарий здесь..."></textarea>
+</div>
+
+<div class="star-rating" data-application-id="{{ application.slug }}">
+    <span class="star" data-value="1">&#9733;</span>
+    <span class="star" data-value="2">&#9733;</span>
+    <span class="star" data-value="3">&#9733;</span>
+    <span class="star" data-value="4">&#9733;</span>
+    <span class="star" data-value="5">&#9733;</span>
+</div>
+ <button type="button" class="btn btn-primary" onclick="onSubmit()">Оценить</button>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const stars = document.querySelectorAll('.star');
+    const starRating = document.querySelector('.star-rating');
+    const applicationId = starRating.getAttribute('data-application-id');
+    let currentRating = parseInt(localStorage.getItem(`rated${applicationId}`), 10);
+
+    // Функция для подсветки звезд
+    function highlightStars(value) {
+        stars.forEach((star, index) => {
+            star.style.color = index < value ? '#ffd700' : '#ddd';
+        });
+    }
+
+    if (currentRating) {
+        highlightStars(currentRating);
+    }
+
+    // Добавляем обработчики кликов только один раз
+    stars.forEach((star, index) => {
+        star.addEventListener('click', function () {
+            if (!currentRating) {
+                const rating = index + 1;
+                currentRating = rating;
+                localStorage.setItem(`rated${applicationId}`, rating.toString());
+                highlightStars(rating);
+
+                // После установки рейтинга добавляем обработчики наведения
+                addHoverEffect();
+
+                const message = document.getElementById('ratingMessage').value;
+                fetch(`/rate-application/${applicationId}/`, {
+                    method: 'POST',
+                    body: JSON.stringify({'score': rating, 'message': message}),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                })
+                .then(response => response.json())
+                .then(() => console.log('Rating submitted successfully'))
+                .catch(error => console.error('Error:', error));
+            }
+        });
+    });
+
+    // Функция для добавления эффекта при наведении
+    function addHoverEffect() {
+        stars.forEach((star, index) => {
+            star.addEventListener('mouseover', () => highlightStars(index + 1));
+            star.addEventListener('mouseout', () => highlightStars(currentRating));
+        });
+    }
+
+    // Функция для получения CSRF токена из кук
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function onSubmit (){
+
+    }
+});
+
+
+
+</script>
+
+</body>
+</html>
