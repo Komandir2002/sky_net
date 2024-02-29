@@ -8,9 +8,9 @@ from autoslug import AutoSlugField
 '''Модель дял отображения статуса заявки'''
 class Status(models.Model):
     CHOISE_STATUS = (
-        (1,'Оформлено'),
-        (2,'В процессе'),
-        (3,'Выполнено'),
+        ('Оформлено','Оформлено'),
+        ('В процессе','В процессе'),
+        ('Выполнено','Выполнено'),
     )
     status = models.CharField(max_length=15,choices=CHOISE_STATUS)
 
@@ -22,8 +22,9 @@ class Applications(models.Model):
     status_id = models.ForeignKey(Status,on_delete=models.CASCADE)
     bx_id = models.IntegerField()
     planup_id = models.IntegerField()
-    user_id = models.IntegerField(null=True,blank=True)
+    user_id = models.TextField(max_length=255,null=True,blank=True)
     slug = models.SlugField(unique=True, blank=True, editable=False, verbose_name="URL")
+    image = models.ImageField(upload_to="", blank=True)
 
     def save(self, *args, **kwargs):
         if not self.id:  # Если объект еще не сохранен и не имеет ID

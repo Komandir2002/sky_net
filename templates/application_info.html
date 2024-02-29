@@ -10,14 +10,8 @@
             width: 70%;
             margin: 0 auto;
         }
-        body{
 
-
-
-
-
-
-
+        body {
         }
 
         .progress {
@@ -39,13 +33,14 @@
             font-family: 'Times New Roman', sans-serif; /* Замените 'Your Font Name' на имя выбранного вами шрифта */
             font-size: 40px; /* Увеличьте размер текста сообщения */
             font-weight: bold; /* Сделайте текст сообщения жирным */
-            color: rgb(148,147,175);
+            color: rgb(148, 147, 175);
             text-align: center; /* Выравнивание по центру */
             margin-top: 20px; /* Отступ сверху */
-            margin-bottom:40px;
+            margin-bottom: 40px;
 
 
         }
+
         .centered-container {
             display: flex;
             flex-direction: column;
@@ -54,6 +49,7 @@
             height: auto; /* Изменено на auto, чтобы контейнер адаптировался под высоту контента */
             margin-top: 10px; /* Добавляем небольшой отступ сверху */
         }
+
         .status-message button {
             font-size: 18px; /* Увеличьте размер текста кнопки внутри сообщения */
             font-weight: bold; /* Сделайте текст кнопки внутри сообщения жирным */
@@ -63,7 +59,7 @@
             font-family: 'Times New Roman', sans-serif;
             position: relative;
             color: black;
-            margin-bottom:10px;
+            margin-bottom: 10px;
         }
 
         .status-item .status-checkbox {
@@ -91,11 +87,12 @@
             color: white;
         }
 
-    .blockquote{
-        font-family: 'Times New Roman', sans-serif;
-        margin-bottom: 30px;
+        .blockquote {
+            font-family: 'Times New Roman', sans-serif;
+            margin-bottom: 30px;
 
-}
+        }
+
         .status-selected .status-checkbox:before {
             content: "\2713";
             position: absolute;
@@ -104,34 +101,48 @@
             left: 7px;
             color: white;
         }
-        .mb-0{
+
+        .mb-0 {
             color: black;
         }
-        .blockquote-footer{
+
+        .blockquote-footer {
             color: black;
         }
-        .card-header{
+
+        .card-header {
             background: #c3e6cb;
         }
 
+        .card {
+            display: flex;
+            width: 300px;
+        }
 
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            flex-grow: 1;
+        }
 
-
-
-
+        .card-body img {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 <blockquote class="blockquote text-center">
-  <p class="mb-0">Статус заявки</p>
+    <p class="mb-0">Статус заявки</p>
 </blockquote>
 <div class="statuses-container">
     <div class="progress">
-        <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {% if application.status_id.id == 1 %}18%{% elif application.status_id.id == 2 %}50%{% elif application.status_id.id == 3 %}100%{% endif %}"
+        <div class="progress-bar progress-bar-striped bg-success" role="progressbar"
+             style="width: {% if application.status_id.id == 4 %}18%{% elif application.status_id.id == 5 %}50%{% elif application.status_id.id == 6 %}100%{% endif %}"
              aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
     </div>
-<p>
-</p>
+    <p>
+    </p>
     <div class="status-checklist" id="statusChecklist">
         {% for status in application.status_id.CHOISE_STATUS %}
             <div class="status-item {% if application.status_id.id >= status.0 %}status-selected{% endif %}">
@@ -141,25 +152,38 @@
         {% endfor %}
     </div>
 </div>
-{% if user_id %}
-    <p>User ID: {{ user_id }}</p>
-{% else %}
-    <p>User ID not found in session.</p>
-{% endif %}
-<p>user_id: {% if application.user_id %}{{ application.user_id }}{% else %}Не назначен{% endif %}</p>
+<div class="card">
+
+    <div class="card-body">
+        {% if application.image %}
+            <img src="{{ application.image.url }}" alt="Card image cap">
+        {% else %}
+            <img src="{% static 'path/to/default/image.jpg' %}" alt="Фотографии нет">
+        {% endif %}
+        <div class="card-body-content">
+            {% if user_full_name %}
+                <h5 class="card-title">Исполнитель: {{ user_full_name }}</h5>
+                <p class="card-text">контакт: {{ user_phone_number }}</p>
+            {% else %}
+                <p>User ID not found in session.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 
 <div class="status-message-container">
-        {% if application.status_id.status == 'Оформлено' %}
-            <div class="status-message">Вам оформили наряд.</div>
-        {% elif application.status_id.status == 'В процессе' %}
-            <div class="status-message">Ваша заявка в процессе выполнения.</div>
-        {% elif application.status_id.status == 'Выполнено' %}
-            <div class="status-message">
-                Ваша заявка обработана, просьба оценить.
-                <button type="button" class="btn btn-primary" onclick="redirectToRating()">Оценить</button>
-            </div>
-        {% endif %}
-    </div>
+    {% if application.status_id.status == 'Оформлено' %}
+        <div class="status-message">Вам оформили наряд.</div>
+    {% elif application.status_id.status == 'В процессе' %}
+        <div class="status-message">Ваша заявка в процессе выполнения.</div>
+    {% elif application.status_id.status == 'Выполнено' %}
+        <div class="status-message">
+            Ваша заявка обработана, просьба оценить.
+            <button type="button" class="btn btn-primary" onclick="redirectToRating()">Оценить</button>
+        </div>
+    {% endif %}
+</div>
 
 {% if message %}
     <p>{{ message }}</p>
@@ -167,38 +191,38 @@
 
 {% if bitrix_data %}
     <div class="container"> <!-- Внешний контейнер для центровки и ограничения ширины всего блока -->
-    <div class="row"> <!-- Ряд для размещения колонок -->
-        <div class="col-md-6 mb-3"> <!-- Первая колонка для карточки с информацией о заявке -->
-            <div class="card">
-                <div class="card-header">Информация о заявке</div>
-                <div class="card-body">
-                    <p>Адрес: {{ bitrix_data.адрес }}</p>
-                    <p>Лицевой счет: {{ bitrix_data.Лицовой_счет }}</p>
-                    <p>Описание заявки: {{ bitrix_data.Описание_заявки }}</p>
-                    <p>Абонент: {{ bitrix_data.LAST_NAME }} {{ bitrix_data.NAME }}</p>
-                    <p>Контакты: {{ bitrix_data.PHONE }}</p>
+        <div class="row"> <!-- Ряд для размещения колонок -->
+            <div class="col-md-6 mb-3"> <!-- Первая колонка для карточки с информацией о заявке -->
+                <div class="card">
+                    <div class="card-header">Информация о заявке</div>
+                    <div class="card-body">
+                        <p>Адрес: {{ bitrix_data.адрес }}</p>
+                        <p>Лицовой счет: {{ bitrix_data.Лицовой_счет }}</p>
+                        <p>Описание заявки: {{ bitrix_data.Описание_заявки }}</p>
+                        <p>Абонент: {{ bitrix_data.LAST_NAME }} {{ bitrix_data.NAME }}</p>
+                        <p>Контакты: {{ bitrix_data.PHONE }}</p>
+                        <p>Номер заявки: {{ planup_id }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6 mb-3"> <!-- Вторая колонка для карточки с отзывами -->
-            <div class="card">
-                <div class="card-header">Отзыв</div>
-                <div class="card-body">
-                    {% if reviews %}
-                        <p>Рейтинг: {{ reviews.score }}</p>
-                        <p>Отзыв: {{ reviews.message }}</p>
-                    {% else %}
-                        <p>Отзывов нет.</p>
-                    {% endif %}
+            <div class="col-md-6 mb-3"> <!-- Вторая колонка для карточки с отзывами -->
+                <div class="card">
+                    <div class="card-header">Отзыв</div>
+                    <div class="card-body">
+                        {% if reviews %}
+                            <p>Рейтинг: {{ reviews.score }}</p>
+                            <p>Отзыв: {{ reviews.message }}</p>
+                        {% else %}
+                            <p>Отзывов нет.</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% else %}
     <p>Данные не загружены.</p>
 {% endif %}
-<p>planup_id: {{ application.planup_id }}</p>
 <script>
     function redirectToRating() {
         // Замените 'your-rating-page-url' на фактический URL, куда вы хотите перенаправить

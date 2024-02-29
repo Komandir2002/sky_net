@@ -23,14 +23,3 @@ async def bitrix_1c_contact(deal_id):
         "NAME": report_executor_model_last_name,
     }
     return extracted_data
-
-def main():
-    contact_id = 77552
-    # Используем новый цикл событий для запуска асинхронной функции
-    loop = asyncio.get_event_loop()
-    data = loop.run_until_complete(bitrix_1c_s(contact_id))
-    print(data)
-
-# Проверяем, является ли скрипт точкой входа в программу
-if __name__ == '__main__':
-    main()

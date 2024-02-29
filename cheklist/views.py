@@ -13,9 +13,7 @@ for session in sessions:
     data = session.get_decoded()
     print(data)
 
-def show_applications(request):
-    applications = models.Applications.objects.all().order_by('id')
-    return render(request, 'show_applications.html', {'applications': applications})
+
 
 def review(request, application_slug):
     # Здесь логика получения данных заявки по application_slug
@@ -23,38 +21,41 @@ def review(request, application_slug):
     application = get_object_or_404(models.Applications, slug=application_slug)
     return render(request, 'index.html', {'application': application})
 
-def rate_application(request, application_slug):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        score = data['score']
-        message = data.get('message', '')  # Извлекаем сообщение, если оно есть
 
-        application = models.Applications.objects.get(slug=application_slug)  # Находим соответствующее приложение по slug
-        rating, created = models.ApplicationRating.objects.update_or_create(
-            application=application,
-            defaults={'score': score, 'message': message}  # Обновляем или создаем оценку с сообщением
-        )
 
-        return JsonResponse({'status': 'success', 'message': 'Rating submitted successfully'})
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
-
-@csrf_exempt
-def planup_p(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        request.session['user_id'] = user_id  # Сохраняем user_id в
-        request.session.save()
-        print(user_id)
-        # Возвращаем user_id в ответе
-        return JsonResponse({"message": "This is a POST request. User ID received.", "user_id": user_id}, status=200)
-    else:
-        return JsonResponse({"message": "This is not a POST request."}, status=400)
 
 
 def application_info(request, application_slug):
     application = get_object_or_404(models.Applications, slug=application_slug)
-    user_id = request.session.get('user_id')
-    print(user_id)
+    user_data_str = request.session.get('user_id', '[]')
+
+    try:
+        # Десериализация внешнего списка
+        outer_list = json.loads(user_data_str)
+        # Десериализация внутреннего списка
+        if outer_list:
+            inner_list_str = outer_list[0]
+            inner_list = json.loads(inner_list_str)
+            user_data = inner_list[0] if inner_list else {}
+        else:
+            user_data = {}
+    except (json.JSONDecodeError, IndexError) as e:
+        user_data = {}
+
+    # Преобразуем строку JSON обратно в Python объект (список словарей)
+    try:
+        user_data_list = json.loads(user_data_str)
+        user_data = user_data_list[0] if user_data_list and isinstance(user_data_list, list) else {}
+    except (json.JSONDecodeError, IndexError):
+        user_data = {}
+
+    # Проверка, что полученный объект является списком словарей, и извлечение первого элемента
+
+    planup_id = request.session.get('planup_id')
+    print(user_data)
+    print(planup_id)
+    status = application.status_id.id
+    print(status)
     try:
         reviews = application.reviews  # Убедитесь, что используете .all() для получения QuerySet отзывов
     except ObjectDoesNotExist:
@@ -67,13 +68,21 @@ def application_info(request, application_slug):
             bitrix_data = asyncio.run(bitrix_1c_s(application.bx_id))
         except Exception as e:
             print(f"Ошибка при получении данных из Bitrix24: {e}")
-
+    if isinstance(user_data, dict):
+        user_full_name = user_data.get('full_name', 'Исполитель не назначен')
+        user_phone_number = user_data.get('phone_number', 'Контакт не указан')
+    else:
+        user_full_name = 'Исполитель не назначен'
+        user_phone_number = 'Контакт не указан'
 
     return render(request, 'application_info.html', {
         'application': application,
         'reviews': reviews,
         'bitrix_data': bitrix_data,
-        'user_id':user_id
+        'image': application.image,
+        'user_full_name': user_full_name,
+        'user_phone_number': user_phone_number,
+        'planup_id':planup_id
 
     })
 
@@ -86,6 +95,13 @@ def add_application(request):
     if request.method == "POST":
         form = forms.AplicationsForm(request.POST, request.FILES)
         if form.is_valid():
+            user_id = request.POST.get('user_id')
+            planup_id = request.POST.get('planup_id')
+            request.session['user_id'] = json.dumps([user_id])
+            request.session.save()
+            print("Извлекаем из сессии:", request.session.get('user_id', '[]'))
+            request.session['planup_id'] = planup_id  # Сохраняем planup_id в сесси
+            request.session.save()
             form.save()
             return HttpResponse("Заявка добавлена успешно.")
     else:
@@ -102,6 +118,8 @@ def add_application(request):
         form = forms.AplicationsForm(initial=initial_data)  # Создаем форму с начальными данными
 
     return render(request, "add_application.html", {"form": form, "message": message, "bitrix_data": bitrix_data,"deal_id": deal_id})
+
+
 def update_application(request, application_slug):
     message = ""
     instance = get_object_or_404(models.Applications, slug=application_slug)
@@ -125,20 +143,5 @@ def update_application(request, application_slug):
 
     return render(request, "update_application.html", {"form": form, "message": message})
 
-
-from django.http import HttpResponse
-
-from django.http import JsonResponse
-
-
-@csrf_exempt
-def testik(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        # Возвращаем user_id в ответе
-        return JsonResponse({"message": "This is a POST request. User ID received.", "user_id": user_id}, status=200)
-
-    else:
-        return JsonResponse({"message": "This is not a POST request."}, status=400)
 
 
